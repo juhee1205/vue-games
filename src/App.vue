@@ -1,6 +1,7 @@
-<script setup lang="ts">
-import LayoutHeader from "./components/Header.vue";
+<script  lang="ts" setup>
+import LayoutHeader from '@/components/Header.vue'
 </script>
+
 <template>
   <div id="wrap">
     <LayoutHeader />
@@ -13,4 +14,6 @@ import LayoutHeader from "./components/Header.vue";
 </template>
 
 <style lang="scss">
+@import '@/assets/scss/index.scss';
+@import '@/assets/scss/layout.scss';
 </style>

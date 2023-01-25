@@ -1,0 +1,95 @@
+.gameBox {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 800px;
+  height: 830px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  .cardList {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    .card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 118px;
+      height: 150px;
+      border-radius: 5px;
+      font-size: 50px;
+
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: .5s;
+      .front {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotateY(180deg);
+        backface-visibility: hidden;
+        border: 2px solid var(--color-primary);
+        border-radius: 3px;
+      }
+      .back {
+        $bgColor: var(--color-primary);
+        $bgColor2: #e5e5f7;
+
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 3px;
+        background-color: $bgColor;
+        background:
+          radial-gradient(circle, transparent 20%, $bgColor 20%, $bgColor 80%, transparent 80%, transparent),
+          radial-gradient(circle, transparent 20%, $bgColor 20%, $bgColor 80%, transparent 80%, transparent) 15px 15px,
+          linear-gradient($bgColor2 1px, transparent 1px) 0 -1px,
+          linear-gradient(90deg, $bgColor2 1px, $bgColor 1px) -1px 0;
+        background-size: 30px 30px, 30px 30px, 15px 15px, 15px 15px;
+      }
+      &.open {
+        transform: rotateY(-180deg);
+      }
+      &.clear {
+        .front,
+        .back {
+          opacity: 0;
+          transition: opacity 0.5s 0.5s;
+        }
+
+      }
+    }
+  }
+
+  .reStart {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    padding: 50px;
+    border: 2px solid var(--color-primary);
+    border-radius: 10px;
+    background-color: #fff;
+    text-align: center;
+    h2 {
+      margin: 0 0 20px;
+      font-size: 30px;
+    }
+    .btn {
+      padding: 5px 0;
+      font-size:20px;
+      border-radius: 5px;
+      background: var(--color-primary);
+      color:#fff;
+      cursor: pointer;
+    }
+  }
+}
