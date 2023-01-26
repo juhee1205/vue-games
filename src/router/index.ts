@@ -16,6 +16,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'rockPaperScissors',
     component: () => import('../views/RPS.vue')
   },
+  {
+    path: '/lotto',
+    name: 'lotto',
+    component: () => import('../views/Lotto.vue')
+  },
 ]
 
 const router = createRouter({
