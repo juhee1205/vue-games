@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Ref } from 'vue';
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 
-let emojiList: string[] = ['🍕','🍔','🍟','🌭','🥐','🍖','☕','🍰','🍈','🍉','🍺','🍎','🍑','🍇','🥝'];
-// let emojiList: string[] = ['🍕','🍔','🍟'];
-let cardCount = emojiList.length
+let emojiList: string[] = ['🍕','🍔','🍟','🌭','🥐','🍖','☕','🍰','🍈','🍉','🍺','🍎','🍑','🍇','🥝']
+let cardCount: number = emojiList.length
 
-let cardList: Ref<Array | null> = ref(null);
-const cardInit = (): void => {
-  cardList.value = Array(cardCount*2).fill({})
-  cardList.value = cardList.value.map((item, index) =>{
-    let obj = {}
-    obj.text = emojiList[index%cardCount]
-    obj.isOpen = true
-    obj.isclear = false
-    return obj
-  })
+interface Card {
+  text: string
+  isOpen: boolean
+  isclear: boolean
 }
-cardInit();
+let cardList: Ref<Array<Card>> = ref([])
+
+const cardInit = (): void => {
+  let card: Array<Card> =
+    Array(cardCount*2)
+      .fill({})
+      .map((item, index) => {
+        let obj: Card = { text:'', isOpen:true, isclear: false }
+        obj.text = emojiList[index%cardCount]
+        return obj
+      })
+  cardList.value = card
+}
+cardInit()
 
 let isGameEnd: Ref<boolean> = ref(false)
 const gameEnd = (): void => {
@@ -27,28 +33,26 @@ const gameEnd = (): void => {
 }
 
 
-
 interface FirstOpenCard {
-  text: string;
-  index: number;
+  text?: string
+  index: number
 }
-
 let clearCount: number = 0
 let firstOpenCard: FirstOpenCard = { text: '', index: 0 }
 const cardOpen = (idx: number): void => {
-  if (cardList.value[idx].isclear) return
+  const card = cardList.value[idx]
+  if (card.isclear) return
   cardList.value[idx].isOpen = true
 
   if (!firstOpenCard.text) {
-    firstOpenCard.text = cardList.value[idx].text
+    firstOpenCard.text = card.text
     firstOpenCard.index = idx
-  } else if (firstOpenCard.text === cardList.value[idx].text) {
+  } else if (firstOpenCard.text === card.text) {
     clearCount ++
     cardList.value[firstOpenCard.index].isclear = true
     cardList.value[idx].isclear = true
     delete firstOpenCard.text
     if (clearCount == cardCount) {
-
       gameEnd()
     }
   } else {
@@ -63,9 +67,9 @@ const cardOpen = (idx: number): void => {
 const shuffle = (): void => {
   cardList.value.sort(() => Math.random() - 0.5)
 }
-const cardReset = () => {
+const cardReset = (): void => {
   cardList.value = cardList.value.map(item => {
-    let obj = { ...item }
+    let obj: Card = { ...item }
     obj.isOpen = false
     obj.isclear = false
     return obj
@@ -79,7 +83,6 @@ const gameStart = (): void => {
   isGameEnd.value = false
 }
 gameStart()
-
 </script>
 
 <template>
@@ -106,6 +109,6 @@ gameStart()
   </div>
 </template>
 
-<style scope lang="scss">
+<style scoped lang="scss">
 @import '@/assets/scss/card.scss';
 </style>

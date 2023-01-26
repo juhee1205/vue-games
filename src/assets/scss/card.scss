@@ -68,28 +68,4 @@
       }
     }
   }
-
-  .reStart {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    padding: 50px;
-    border: 2px solid var(--color-primary);
-    border-radius: 10px;
-    background-color: #fff;
-    text-align: center;
-    h2 {
-      margin: 0 0 20px;
-      font-size: 30px;
-    }
-    .btn {
-      padding: 5px 0;
-      font-size:20px;
-      border-radius: 5px;
-      background: var(--color-primary);
-      color:#fff;
-      cursor: pointer;
-    }
-  }
 }
