@@ -47,6 +47,9 @@ const cardOpen = (idx: number): void => {
   if (!firstOpenCard.text) {
     firstOpenCard.text = card.text
     firstOpenCard.index = idx
+
+  } else if (firstOpenCard.index === idx) {
+    return
   } else if (firstOpenCard.text === card.text) {
     clearCount ++
     cardList.value[firstOpenCard.index].isclear = true
