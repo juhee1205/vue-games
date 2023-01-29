@@ -21,6 +21,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'lotto',
     component: () => import('../views/Lotto.vue')
   },
+  {
+    path: '/leftRight',
+    name: 'leftRight',
+    component: () => import('../views/LeftRight.vue')
+  },
 ]
 
 const router = createRouter({
