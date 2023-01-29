@@ -10,12 +10,12 @@ interface Key {
 }
 let keyList: Ref<Array<Key>> = ref([])
 let currentIdx: Ref<number> = ref(0)
-let totalStep = 50
+let totalStep: number = 50
 
-let combo = ref(0)
-let isCombo = false
-let score = ref(0)
-let isGameEnd = ref(false)
+let combo: Ref<number> = ref(0)
+let isCombo: boolean = false
+let score: Ref<number> = ref(0)
+let isGameEnd: Ref<boolean> = ref(false)
 const buttonPressed = (key: string): void => {
   let current: Key  = keyList.value[currentIdx.value]
   if (current.key === key) {
@@ -29,7 +29,7 @@ const buttonPressed = (key: string): void => {
     }
     score.value += 10 * combo.value
 
-    if(currentIdx.value === totalStep) {
+    if (currentIdx.value === totalStep) {
       isGameEnd.value = true
     } else {
       keyList.value[currentIdx.value].isCurrent = true
@@ -45,9 +45,9 @@ const buttonPressed = (key: string): void => {
   }
 }
 
-window.addEventListener('keydown', (e) => {
+window.addEventListener('keydown', (e: KeyboardEvent): void => {
   if(e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-    let key = e.key === 'ArrowLeft' ? 'left' : 'right'
+    let key: string = e.key === 'ArrowLeft' ? 'left' : 'right'
     buttonPressed(key);
   }
 });
@@ -65,7 +65,7 @@ const gameStart = (): void => {
   keyList.value = keyListInit
 }
 
-const init = () => {
+const init = (): void => {
   keyList.value = []
   combo.value = 0
   isCombo = false
