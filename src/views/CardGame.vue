@@ -101,7 +101,7 @@ gameStart()
     <div class="cardList"  v-if="!isGameEnd">
       <div
         class="card"
-        :key="`card-${card.text}`"
+        :key="`card-${index}`"
         :class="[{'open' : card.isOpen}, {'clear' : card.isclear}]"
         @click="cardOpen(index)"
         v-for="(card, index) in cardList">
