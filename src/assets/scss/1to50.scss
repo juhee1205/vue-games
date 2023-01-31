@@ -1,0 +1,30 @@
+.gameBox {
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom:10px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+  }
+  .cardList {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    font-size: 20px;
+    line-height: 1;
+    background: #ddd;
+
+    
+  }
+
+}

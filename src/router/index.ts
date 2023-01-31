@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'leftRight',
     component: () => import('../views/LeftRight.vue')
   },
+  {
+    path: '/1to50',
+    name: '1to50',
+    component: () => import('../views/1to50.vue')
+  },
 ]
 
 const router = createRouter({
