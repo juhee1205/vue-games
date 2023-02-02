@@ -3,6 +3,7 @@
     <h3></h3>
     <ul>
       <li>뱀 게임</li>
+      <li><router-link to="/bingo">Bingo</router-link></li>
       <li><router-link to="/1to50">1 to 50</router-link></li>
       <li><router-link to="/leftRight">Left Right</router-link></li>
       <li><router-link to="/rps">가위바위보</router-link></li>

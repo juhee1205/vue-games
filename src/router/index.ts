@@ -31,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     name: '1to50',
     component: () => import('../views/1to50.vue')
   },
+  {
+    path: '/bingo',
+    name: 'bingo',
+    component: () => import('../views/Bingo.vue')
+  },
 ]
 
 const router = createRouter({
