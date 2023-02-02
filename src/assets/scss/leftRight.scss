@@ -8,12 +8,12 @@
     width: 500px;
     height: 550px;
     border-radius: 5px;
-    border:2px solid var(--color-primary);
+    border: 2px solid var(--color-primary);
     overflow: hidden;
     .inner {
       position: absolute;
       bottom: 0;
-      left: calc(50% - 25px);
+      left: calc(50% - 50px);
       display: flex;
       align-items: center;
       flex-direction: column-reverse;
@@ -25,21 +25,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 50px; 
+      width: 50px;
       height: 50px;
       border: 3px solid #333;
       border-radius: 5px;
       font-size: 16px;
       opacity: 0.8;
-      &.current { 
+      &.current {
         width: 100px;
         height:100px;
         font-size: 25px;
         opacity: 1;
       }
       &.shake {
-        animation: shake 0.5s;
+        animation: shake 0.2s;
       }
+    }
+
+    .combo {
+      position: absolute;
+      top: 150px;
+      left: calc(50% - 200px);
+      z-index: 10;
+      width: 400px;
+      font-size: 55px;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-align: center;
+      text-shadow: 1px -1px 7px #fff;
     }
   }
 }

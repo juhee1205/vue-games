@@ -14,6 +14,8 @@ let totalStep: number = 50
 
 let combo: Ref<number> = ref(0)
 let isCombo: boolean = false
+let comboNotice: Ref<number> = ref(0)
+let isComboNotice: Ref<boolean>= ref(false)
 let score: Ref<number> = ref(0)
 let isGameEnd: Ref<boolean> = ref(false)
 const buttonPressed = (key: string): void => {
@@ -26,6 +28,13 @@ const buttonPressed = (key: string): void => {
     isCombo = true
     if (isCombo) {
       combo.value ++
+      if (!(combo.value % 10)) {
+        isComboNotice.value = true
+        comboNotice.value = combo.value
+        setTimeout(() => {
+          isComboNotice.value = false
+        }, 1000)
+      }
     }
     score.value += 10 * combo.value
 
@@ -37,11 +46,11 @@ const buttonPressed = (key: string): void => {
 
   } else {
     current.shake = true
-    isCombo = false 
+    isCombo = false
     combo.value = 0
     setTimeout(() => {
       current.shake = false
-    }, 500)
+    }, 300)
   }
 }
 
@@ -53,15 +62,15 @@ window.addEventListener('keydown', (e: KeyboardEvent): void => {
 });
 
 const gameStart = (): void => {
-  let keyListInit: Array<Key>  =  
-      Array(totalStep)
+  let keyListInit: Array<Key>  =
+    Array(totalStep)
       .fill({})
       .map(item => {
         let obj: Key = {key:'right', shake: false, isClear: false, isCurrent: false}
         obj.key = Math.floor(Math.random() * 10) +1  > 5 ? 'right' : 'left'
         return obj
       })
-  keyListInit[currentIdx.value].isCurrent = true      
+  keyListInit[currentIdx.value].isCurrent = true
   keyList.value = keyListInit
 }
 
@@ -89,12 +98,17 @@ gameStart()
       </div>
     </div>
     <div class="gameZone">
+      <Transition name="combo">
+        <div class="combo" v-show="isComboNotice">
+        🔥Combo {{ comboNotice }}🔥
+        </div>
+      </Transition>
       <div class="inner">
         <template
           :key="`key-${index}`"
            v-for="(key, index) in keyList">
 
-          <Transition name="fade">  
+          <Transition name="fade">
             <div
               :data-index="`${index}`"
               :class="['key', {'current' : key.isCurrent},  {'shake' : key.shake}]"
@@ -128,9 +142,18 @@ gameStart()
 
 .fade-enter-from,
 .fade-leave-to {
-  transition: all 0.3s;
   opacity: 0;
   transform: translateY(220px);
   margin-top: -110px;
+}
+
+.combo-enter-active,
+.combo-leave-active {
+  transition: all 0.2s;
+}
+
+.combo-enter-from,
+.combo-leave-to {
+  transform: translateY(-20px) scale(0);
 }
 </style>
