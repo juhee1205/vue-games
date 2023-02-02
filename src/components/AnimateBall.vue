@@ -10,10 +10,10 @@ interface Props {
   ballIndex: number
 }
 
-const { num , setIndex, ballIndex } = defineProps<Props>()
+const props = defineProps<Props>()
 let isAnimateBall = ref(true)
 let number: Ref<number> = ref(0)
-number.value = num
+number.value = props.num
 
 let lottoInterval = setInterval((): void => {
   number.value = number.value === 45 ? 1 : number.value + 1
@@ -23,11 +23,11 @@ setTimeout(() => {
   isAnimateBall.value = false
   clearInterval(lottoInterval)
 
-  if (ballIndex === 5) {
-    emit('done', setIndex)
+  if (props.ballIndex === 5) {
+    emit('done', props.setIndex)
   }
 
-}, ((setIndex + 1) * 2000) + ((ballIndex) * 300))
+}, ((props.setIndex + 1) * 2000) + ((props.ballIndex) * 300))
 
 const colorCheck = (num: number): string  => {
   let n: string = num.toString()
