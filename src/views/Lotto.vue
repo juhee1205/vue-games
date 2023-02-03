@@ -11,18 +11,19 @@ let loadingText: Ref<boolean[]> = ref([])
 const selecter = (): void => {
   let selectNumberList: number[] = []
   let numberList: Array<number> = new Array(45).fill(0).map((item, index) => item = index+1)
-      
+
 
   let index = 0
   const numberValidation = () => {
 
-    selectNumberList = [...numberList.sort(() => Math.random() - 0.5).splice(0,6).sort((a: number,b: number) => a-b)]
+    selectNumberList =
+      [...numberList.sort(() => Math.random() - 0.5).splice(0,6).sort((a: number,b: number) => a-b)]
 
     let oddOrEven: string[] = []
     let sequenceSize = 0
     let sequence: boolean[] = []
     let numberArea: number[] = new Array(5).fill(0)
-    
+
     selectNumberList.forEach((item, index) => {
       oddOrEven.push(item % 2 ? 'odd' : 'even')
 
@@ -31,7 +32,7 @@ const selecter = (): void => {
 
       if (index === 1) {
         sequenceSize = item - selectNumberList[index-1]
-      } else if (index > 1 && sequence.indexOf(false) === -1) {
+      } else if (index > 1) {
         sequence.push(sequenceSize === item - selectNumberList[index-1] ? true : false)
       }
     })
@@ -41,7 +42,7 @@ const selecter = (): void => {
       [...new Set(oddOrEven)].length === 1 ||
       sequence.indexOf(false) === -1 ) {
       numberValidation()
-    } 
+    }
   }
   numberValidation()
   selectedBalls.value.push(selectNumberList)
@@ -98,7 +99,7 @@ const animateBallDone = (index: number) => {
         <div :class="['lottoBalls', { complete: !loadingText[setIndex] }]"  v-if="selectedBalls">
           <h3>{{ loadingText[setIndex] ?  '생성중..' : '생성완료' }}</h3>
           <template  v-for="(num, ballIndex) in set" :key="`number-${ballIndex}`">
-            <AnimateBall :num="num" :setIndex="setIndex" :ballIndex="ballIndex" @done="animateBallDone" />
+            <AnimateBall :num="num" :setIndex="setIndex" :ballIndex="ballIndex" @update:done="animateBallDone" />
           </template>
         </div>
       </template>
