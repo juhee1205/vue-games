@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkgames"]=self["webpackChunkgames"]||[]).push([[395],{1395:function(n,e,r){function u(n,e){return" main "}r.r(e),r.d(e,{default:function(){return c}});var t=r(89);const a={},s=(0,t.Z)(a,[["render",u]]);var c=s}}]);
+//# sourceMappingURL=395.2843db6e.js.map
