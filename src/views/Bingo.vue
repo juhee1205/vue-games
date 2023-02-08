@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { useStore } from 'vuex'
-
-const store = useStore()
 
 interface BingoList {
   value: number
@@ -10,10 +7,22 @@ interface BingoList {
   isBingo: boolean
 }
 
+let COLS: number = 6
+let TOTAL_COUNT: number = Math.pow(COLS,2)
+
+let COL: string = 'col'
+let ROW: string = 'row'
+let LEFT: string = 'L'
+let RIGHT: string = 'R'
+
+let cardSize = ref({
+  width: `calc((100% - (${(COLS - 1) * 5}px))  / ${COLS})`,
+  height: `calc((100% - (${(COLS - 1) * 5}px))  / ${COLS})`,
+})
+
 let numberList = ref<BingoList[]>([])
 let isPlay = ref<boolean>(false)
-let isGameEnd = ref<boolean>(true)
-
+let isGameEnd = ref<boolean>(false)
 
 let drawNumber = ref<number>(0)
 let drawList = ref<number[]>([])
@@ -25,41 +34,40 @@ const bingoRow = ref<number[]>([])
 const bingoDiagonal = ref<string[]>([])
 
 watchEffect(() => {
-  if (bingoCount.value >= 3) {
+  if (bingoCount.value >= 4) {
     setTimeout(() => {
-      isGameEnd.value = false
+      isGameEnd.value = true
     }, 300)
   }
 })
 
-const suffle = (): void => {
-  if (!isPlay.value) {
+const shuffleCheck = () => {
+  let before = numberList.value
+  let after = [...numberList.value].sort(() => Math.random() - 0.5)
 
-    const suffleCheck = () => {
-      let before = numberList.value
-      let after = [...numberList.value].sort(() => Math.random() - 0.5)
+  for (let i = 0; i < TOTAL_COUNT; i++) {
+    if (before[i].value === after[i].value) {
+      if (i === 0) {
+        after.push(after[i])
+        after.splice(i, 1)
+        i--
 
-      for(let i = 0; i < 25; i ++) {
-        if (before[i].value === after[i].value) {
-          if (i === 0) {
-            after.push(after[i])
-            after.splice(i, 1)
-            i--
-
-          } else {
-            after.splice(i-1, 2, after[i], after[i-1])
-          }
-        }
+      } else {
+        after.splice(i - 1, 2, after[i], after[i - 1])
       }
-
-      numberList.value = after
     }
+  }
 
-    suffleCheck()
-    for(let i = 0; i < 4; i ++) {
+  numberList.value = after
+}
+
+const shuffle = (): void => {
+  if (!isPlay.value) {
+    shuffleCheck()
+    for (let i = 0; i < 4; i++) {
       setTimeout(() => {
-        suffleCheck()
-      }, (i+ 1) * 500)
+        shuffleCheck()
+      }, (i + 1) * 500)
     }
 
     isPlay.value = true
@@ -68,7 +76,7 @@ const suffle = (): void => {
     if (result) {
       isPlay.value = false
       init()
-      suffle()
+      shuffle()
     }
   }
 }
@@ -77,24 +85,24 @@ const suffle = (): void => {
  * 빙고가 됐을때 해당 값의 isBingo를 true로 바꿔주는 함수
  */
 const bingoEffect = (flag: string, index: number = 0): void => {
-  if (flag === 'col') {
-    for (let i = 0; i < 5; i++)  {
-      numberList.value[index + (i * 5)].isBingo = true
+  if (flag === COL) {
+    for (let i = 0; i < COLS; i++) {
+      numberList.value[index + (i * COLS)].isBingo = true
     }
 
-  } else if (flag === 'row') {
-    for (let i = 0; i < 5; i++)  {
+  } else if (flag === ROW) {
+    for (let i = 0; i < COLS; i++) {
       numberList.value[index + i].isBingo = true
     }
 
-  } else if (flag === 'L') {
-    for (let i = 0; i < 5; i++)  {
-      numberList.value[i * 6].isBingo = true
+  } else if (flag === LEFT) {
+    for (let i = 0; i < COLS; i++) {
+      numberList.value[i * (COLS + 1)].isBingo = true
     }
 
   } else {
-    for (let i = 0; i < 5; i++)  {
-      numberList.value[(i + 1) * 4].isBingo = true
+    for (let i = 0; i < COLS; i++) {
+      numberList.value[(i + 1) * (COLS - 1)].isBingo = true
     }
 
   }
@@ -103,67 +111,67 @@ const bingoEffect = (flag: string, index: number = 0): void => {
 /**
  * 세로 빙고가 맞는지 검증하는 함수
  */
-const columnValidation = (idx: number) => {
-  let isBingo = true
+const columnValidation = (idx: number): void => {
+  let isBingo: boolean = true
 
-  for (let i = 0; i < 5; i++)  {
-    if (drawIndexList.value.indexOf(idx+(i * 5)) === -1) {
+  for (let i = 0; i < COLS; i++) {
+    if (drawIndexList.value.indexOf(idx+(i * COLS)) === -1) {
       isBingo = !isBingo
       break
     }
   }
 
-  if (isBingo && bingoColumn.value.indexOf(idx) === -1 ) {
+  if (isBingo && bingoColumn.value.indexOf(idx) === -1) {
     bingoCount.value ++
     bingoColumn.value.push(idx)
-    bingoEffect('col', idx)
+    bingoEffect(COL, idx)
   }
 }
 
 /**
  * 가로 빙고가 맞는지 검증하는 함수
  */
-const rowValidation = (idx: number) => {
-  let isBingo = true
+const rowValidation = (idx: number): void => {
+  let isBingo: boolean = true
 
-  for (let i = 0; i < 5; i++)  {
+  for (let i = 0; i < COLS; i++)  {
     if (drawIndexList.value.indexOf(idx + i) === -1) {
       isBingo = !isBingo
       break
     }
   }
 
-  if (isBingo && bingoRow.value.indexOf(idx) === -1 ) {
+  if (isBingo && bingoRow.value.indexOf(idx) === -1) {
     bingoCount.value ++
     bingoRow.value.push(idx)
-    bingoEffect('row', idx)
+    bingoEffect(ROW, idx)
   }
 }
 
 /**
  * 대각선 빙고가 맞는지 검증하는 함수
  */
-const diagonalValidation = (flag: string) => {
-  let isBingo = true
+const diagonalValidation = (flag: string): void => {
+  let isBingo: boolean = true
 
-  if (flag === 'L') {
-    for (let i = 0; i < 5; i++)  {
-      if (drawIndexList.value.indexOf(i * 6) === -1) {
+  if (flag === LEFT) {
+    for (let i = 0; i < COLS; i++) {
+      if (drawIndexList.value.indexOf(i * (COLS + 1)) === -1) {
         isBingo = !isBingo
         break
       }
     }
 
   } else {
-    for (let i = 0; i < 5; i++)  {
-      if (drawIndexList.value.indexOf((i + 1) * 4) === -1) {
+    for (let i = 0; i < COLS; i++)  {
+      if (drawIndexList.value.indexOf((i + 1) * (COLS - 1)) === -1) {
         isBingo = !isBingo
         break
       }
     }
   }
 
-  if (isBingo && bingoDiagonal.value.indexOf(flag) === -1 ) {
+  if (isBingo && bingoDiagonal.value.indexOf(flag) === -1) {
     bingoCount.value ++
     bingoDiagonal.value.push(flag)
     bingoEffect(flag)
@@ -175,25 +183,25 @@ const diagonalValidation = (flag: string) => {
  * 뽑힌 번호가 5개 이상일 때 1차 검증 후 상황에 맞게 검증함수로 넘겨주는 함수
  */
 const bingoCheck = (): void => {
-  drawIndexList.value.sort((a,b) => a-b)
+  drawIndexList.value.sort((a, b) => a - b)
 
-  if (drawIndexList.value.length >= 5) {
+  if (drawIndexList.value.length >= COLS) {
     for(let i = 0; i < drawIndexList.value.length; i++) {
-      if (i < 5 && drawIndexList.value.indexOf(i) !== -1) {
+      if (i < COLS && drawIndexList.value.indexOf(i) !== -1) {
         columnValidation(i)
       }
 
-      if (drawIndexList.value.indexOf(i * 5) !== -1) {
-        rowValidation(i * 5)
+      if (drawIndexList.value.indexOf(i * COLS) !== -1) {
+        rowValidation(i * COLS)
       }
     }
 
-    if (drawIndexList.value.indexOf(12) !== -1 && drawIndexList.value.indexOf(0) !== -1) {
-      diagonalValidation('L')
+    if (drawIndexList.value.indexOf(COLS + 1) !== -1 && drawIndexList.value.indexOf(0) !== -1) {
+      diagonalValidation(LEFT)
     }
 
-    if (drawIndexList.value.indexOf(12) !== -1 && drawIndexList.value.indexOf(4) !== -1) {
-      diagonalValidation('R')
+    if (drawIndexList.value.indexOf(Math.floor((COLS * 2) - 2)) !== -1 && drawIndexList.value.indexOf((COLS - 1)) !== -1) {
+      diagonalValidation(RIGHT)
     }
 
   }
@@ -202,7 +210,7 @@ const bingoCheck = (): void => {
 /**
  * 빙고판에 X 표시
  */
-const selectCheck = () => {
+const selectCheck = (): void => {
   drawList.value.push(drawNumber.value)
   let index: number = 0
   numberList.value.map((item, i) => {
@@ -217,12 +225,12 @@ const selectCheck = () => {
 /**
  * 애니메이션 넘버
  */
-const animateNumber = (n) => {
-  let time = 1000
+const animateNumber = (n: number): void => {
+  let time = TOTAL_COUNT * 30
   let interval = setInterval(() => {
     n++
-    drawNumber.value = n%25 === 0 ? 25 : n%25
-  }, time / 50)
+    drawNumber.value = n % TOTAL_COUNT === 0 ? TOTAL_COUNT : n % TOTAL_COUNT
+  }, time / (TOTAL_COUNT * 2))
 
   setTimeout(() => {
     clearInterval(interval)
@@ -231,23 +239,15 @@ const animateNumber = (n) => {
   }, time);
 }
 
-/**
- * 카드를 클릭 했을때 번호를 뽑는 함수
- */
 const cardClick = (): void => {
-
   let number: number = 0
 
-  const random = (): void => {
-    number = Math.floor(Math.random() * 25 + 1)
-    if (drawList.value.indexOf(number) === -1) {
-      return
-    }
-    random()
+  number = Math.floor(Math.random() * TOTAL_COUNT + 1)
+  if (drawList.value.indexOf(number) === -1) {
+    animateNumber(number)
+    return
   }
-
-  random()
-  animateNumber(number)
+  cardClick()
 }
 
 const init = (): void => {
@@ -262,7 +262,7 @@ const init = (): void => {
   bingoDiagonal.value = []
 
   let number: BingoList[] =
-    new Array(25)
+    new Array(TOTAL_COUNT)
       .fill({})
       .map((item, index) => {
         const obj: BingoList = { value: 0, selected: false, isBingo: false}
@@ -273,11 +273,11 @@ const init = (): void => {
 }
 init()
 
-const reStart = () => {
+const reStart = (): void => {
   isPlay.value = false
-  isGameEnd.value = true
+  isGameEnd.value = false
   init()
-  suffle()
+  shuffle()
 }
 </script>
 
@@ -285,15 +285,13 @@ const reStart = () => {
   <h1>빙고</h1>
   <div class="gameBox bingo">
 
-    <div class="reStart" v-if="!isGameEnd">
+    <div class="reStart" v-if="isGameEnd">
       <h2>🎉게임 클리어</h2>
       <div class="btn" @click="reStart()">
         <font-awesome-icon icon="fa-solid fa-rotate-right" />
         다시 시작
       </div>
     </div>
-
-    <!-- <BingoAnimateNumber /> -->
 
     <div class="drawArea">
       <Transition name="fade" mode="out-in">
@@ -313,14 +311,14 @@ const reStart = () => {
 
     <div class="bingoArea">
       <div class="top">
-        <div :class="['btn', {disable : isPlay}]" @click="suffle">빙고 번호 섞기</div>
+        <div :class="['btn', {disable : isPlay}]" @click="shuffle">빙고 번호 섞기</div>
       </div>
       <div class="cardList">
         <transition-group>
           <template
             :key="`number-${card.value}`"
             v-for="card in numberList">
-            <div :class="['card', { bingo: card.isBingo }]" >
+            <div :class="['card', { bingo: card.isBingo }]" :style="cardSize">
               {{ card.value }}
               <div class="selected" :class="{ check: card.selected }"></div>
             </div>
