@@ -7,15 +7,15 @@ interface BingoList {
   isBingo: boolean
 }
 
-let COLS: number = 6
-let TOTAL_COUNT: number = Math.pow(COLS,2)
+const COLS: number = 6
+const TOTAL_COUNT: number = Math.pow(COLS,2)
 
-let COL: string = 'col'
-let ROW: string = 'row'
-let LEFT: string = 'L'
-let RIGHT: string = 'R'
+const COL: string = 'col'
+const ROW: string = 'row'
+const LEFT: string = 'L'
+const RIGHT: string = 'R'
 
-let cardSize = ref({
+const cardSize = ref({
   width: `calc((100% - (${(COLS - 1) * 5}px))  / ${COLS})`,
   height: `calc((100% - (${(COLS - 1) * 5}px))  / ${COLS})`,
 })
