@@ -16,35 +16,20 @@ const suffle = () => {
   numberList.value.sort(() => Math.random() - 0.5)
 }
 
-let time = ref(90)
-let aa = null
-const timer = () => {
-  aa = setInterval(() => {
-  if (time.value == 0) {
-    clearInterval(aa)
-    alert('타임오버')
-  }
-  time.value --
-}, 1000)
-}
-let isPlay = ref(false)
+let time = ref(0)
 const gameStart = () => {
-  isPlay.value = true
-  time.value = 90
-  clearInterval(aa)
+  time.value = 0
   init()
   suffle()
-  timer()
+  setInterval(() => {
+    time.value ++
+  }, 1000)
 }
 let number = 1
 const clear = (n) => {
-  if (!isPlay.value) {
-    alert('게임 시작을 헤주세요') 
-    return
-  }
 
   if (number === numberList.value[n].value) {
-    if(number ===  50) {
+    if (number ===  50) {
       alert('게임끝')
     }
     number ++
@@ -72,12 +57,51 @@ const clear = (n) => {
         </template>
       </transition-group>
     </div>
+
+    <!--Waves Container-->
+    <!-- <div class="wavesBox">
+      <svg class="waves"
+      viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <defs>
+      <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+      </defs>s
+      <g class="parallax">
+        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(230,173,152,0.7)" />
+        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(228,190,175,0.5)" />
+        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fecfbd" />
+      </g>
+      </svg>
+    </div> -->
+
+    <div class="animationBox">
+      <div>
+      <template v-for="(item, index) in 20" :key="`fish1-${index}`">
+        <div class="icon fish1"><font-awesome-icon icon="fa-solid fa-fish" /></div>
+      </template>
+      </div>
+
+      <div>
+      <template v-for="(item, index) in 20" :key="`fish2-${index}`">
+        <div class="icon fish2"><font-awesome-icon icon="fa-solid fa-fish-fins" /></div>
+      </template>
+      </div>
+
+      <div>
+      <template v-for="(item, index) in 20" :key="`shrimp-${index}`">
+        <div class="icon shrimp"><font-awesome-icon icon="fa-solid fa-shrimp" /></div>
+      </template>
+      </div>
+    </div>
+
+
   </div>
 
 </template>
 
 <style scoped lang="scss">
 @import '@/assets/scss/1to50.scss';
+
 .v-move {
   transition: transform 1s;
 }

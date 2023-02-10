@@ -1,5 +1,7 @@
 .gameBox {
-
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient( #89d2e5, #4b97b1) !important;
   .top {
     display: flex;
     align-items: center;
@@ -10,14 +12,16 @@
     .btn {
       padding: 3px 15px;
       border-radius: 3px;
-      color: #fff;
+      color: var(--color-primary);
       font-weight: 700;
-      background: var(--color-primary);
+      background: var(--color-bg1);
       cursor: pointer;
     }
 
   }
   .cardList {
+    position: relative;
+    z-index: 10;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -32,12 +36,89 @@
     height: 70px;
     font-size: 20px;
     line-height: 1;
-    background: rgba(0,0,0,0.2);
+    border: 1px solid #ddd;
+    background: rgba(255,255,255,0.5);
     cursor: pointer;
     &.clear {
       opacity: 0;
       transition: all 0.4s;
     }
   }
+}
 
+.animationBox {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  font-size: 30px;
+  .fish1 {
+    position: absolute;
+    left:-100%;
+    color: #eb359a;
+    @for $i from 1 to 21 {
+      &:nth-child(#{$i}) {
+        opacity: random(10) / 10;
+        top: random(420) + px;
+        animation: move-right random(5) + 7 + s random(10) + s infinite;
+      }
+    }
+  }
+  .fish2 {
+    position: absolute;
+    transform: rotate(180deg);
+    right:-100%;
+    color: #5d4396;
+    @for $i from 1 to 21 {
+      &:nth-child(#{$i}) {
+        opacity: random(10) / 10;
+        top: random(420) + px;
+        animation: move-left random(5) + 7 + s random(10) + s infinite;
+      }
+    }
+  }
+  .shrimp {
+    position: absolute;
+    right:-100%;
+    color: #f35656;
+    @for $i from 1 to 21 {
+      &:nth-child(#{$i}) {
+        opacity: random(10) / 10;
+        top: random(420) + px;
+        animation: move-left random(10) + 7 + s random(10) + s infinite;
+      }
+    }
+  }
+}
+
+@keyframes move-right {
+  0% {
+    left: -30px;
+  }
+  20% {
+    margin-top: -70px;
+  }
+  40% {
+    margin-top: 15px;
+  }
+  100% {
+    left:110%;
+  }
+}
+
+@keyframes move-left {
+  0% {
+    right:-30px;
+  }
+  20% {
+    margin-top: -25px;
+  }
+  40% {
+    margin-top: 30px;
+  }
+  100% {
+    right: 110%;
+  }
 }
