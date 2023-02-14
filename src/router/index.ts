@@ -7,6 +7,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/Bingo.vue')
   },
   {
+    path: '/bingo2',
+    name: 'Bingo2',
+    component: () => import('../views/Bingo2.vue')
+  },
+  {
     path: '/card',
     name: 'card',
     component: () => import('../views/CardGame.vue')
