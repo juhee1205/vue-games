@@ -12,13 +12,23 @@ const creatSnake  = (): void => {
 creatSnake()
 
 const moveSnake = () => {
-  snake.value.forEach(pice => {
-    
-    console.log(pice)
+  snake.value = snake.value.map(pice => {
+    let [x, y] = pice
+    if (direction === 'R') { 
+      return [x + 1, y]
+    // } else if () {
+      
+    }
   });
 }
 
-moveSnake()
+let aa = setInterval(() => {
+  moveSnake()
+}, 1000)
+
+setTimeout(() => {
+  clearInterval(aa)
+}, 5000);
 
 const picePosition = ([x ,y]): string => {
   return `left: ${x * 30}px; top: ${y * 30}px`
