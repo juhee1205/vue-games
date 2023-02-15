@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 
 let snake = ref<number[][]>([])
-let direction = 'L'
+let direction = 'Right'
 const creatSnake  = (): void => {
   for (let i = 0; i < 5; i++) {
     snake.value.push([i + 5, 7])
@@ -15,7 +15,7 @@ const moveSnake = () => {
   let count = snake.value.length
   let [lastX, lastY] = snake.value[count - 1]
   let [firstX, firstY] = snake.value[0]
-  if (lastX === 19 || lastY === 19 || firstX === 0 || firstY === 0) {
+  if (lastX === 19 || lastY === 19 || lastX === 0 || lastY === 0) {
     alert('게임종료')
     gameEnd()
     return
@@ -49,12 +49,18 @@ const picePosition = ([x ,y]): string => {
   return `left: ${x * 30}px; top: ${y * 30}px`
 }
 
+const directionCheck = (dir) => {
+  return dir === 'Left' || dir === 'Right'  ? 'row' : 'col'
+}
+
 window.addEventListener('keydown', (e: KeyboardEvent): void => {
   const beforeDirection = direction
-  
+   
   if(e.code.includes('Arrow')) {
-    direction = e.code.split('Arrow')[1]
-    console.log(direction)
+    let keyDirection = e.code.split('Arrow')[1]
+    if (directionCheck(direction) !== directionCheck(keyDirection)) {
+      direction = keyDirection
+    }
   }
 });
 
@@ -69,7 +75,7 @@ window.addEventListener('keydown', (e: KeyboardEvent): void => {
     <div class="ground">
       <div class="snake">
         <template v-for="(pice, index) in snake" :key="`pice-${index}`">
-          <div class="pice" :style="picePosition(pice)"></div>
+          <div class="pice" :style="picePosition(pice)"><span></span></div>
         </template>
       </div>
 
