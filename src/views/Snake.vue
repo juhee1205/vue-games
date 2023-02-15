@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 
 let snake = ref<number[][]>([])
-let direction = 'R'
+let direction = 'L'
 const creatSnake  = (): void => {
   for (let i = 0; i < 5; i++) {
     snake.value.push([i + 5, 7])
@@ -12,37 +12,49 @@ const creatSnake  = (): void => {
 creatSnake()
 
 const moveSnake = () => {
-  snake.value = snake.value.map(pice => {
-    let [x, y] = pice
-    if (direction === 'R') { 
-      return [x + 1, y]
-    // } else if () {
-      
+  let count = snake.value.length
+  let [lastX, lastY] = snake.value[count - 1]
+  let [firstX, firstY] = snake.value[0]
+  if (lastX === 19 || lastY === 19 || firstX === 0 || firstY === 0) {
+    alert('게임종료')
+    gameEnd()
+    return
+  } 
+
+  snake.value.splice(0, 1)
+    if (direction === 'Left') {
+      snake.value.push([lastX - 1, lastY])
+    } else if (direction === 'Right') {
+      snake.value.push([lastX + 1, lastY])
+    } else if (direction === 'Up') {
+      snake.value.push([lastX, lastY - 1])
+    } else {
+      snake.value.push([lastX, lastY + 1])
     }
-  });
 }
 
 let aa = setInterval(() => {
   moveSnake()
 }, 1000)
 
-setTimeout(() => {
+const gameEnd = () => {
   clearInterval(aa)
-}, 5000);
+}
+
+// setTimeout(() => {
+//   clearInterval(aa)
+// }, 7000)
 
 const picePosition = ([x ,y]): string => {
   return `left: ${x * 30}px; top: ${y * 30}px`
 }
 
-const directionChange = (code) => {
-  if (code === 'Space') {
-
-  }
-}
-
 window.addEventListener('keydown', (e: KeyboardEvent): void => {
-  if(e.code === 'ArrowLeft' || e.code === 'ArrowRight' || e.code === 'ArrowDown' || e.code === 'ArrowUp') {
-    directionChange(e.code);
+  const beforeDirection = direction
+  
+  if(e.code.includes('Arrow')) {
+    direction = e.code.split('Arrow')[1]
+    console.log(direction)
   }
 });
 
