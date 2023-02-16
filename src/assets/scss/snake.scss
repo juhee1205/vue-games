@@ -7,18 +7,92 @@
     display: flex;
     flex-wrap: wrap;
     .grid {
-      width:30px;
-      height: 30px;
-      background: linear-gradient(#fafafa, #f2f2f2);
-      box-shadow: inset 4px 4px 15px rgba(0,0,0,0.15);
+      width:31px;
+      height: 31px;
+      margin-top: -1px;
+      margin-left: -1px;
+      border: 1px solid #92ce4c;
+      background: #f3ffe9;
+      // box-shadow: inset 1px 1px 2px rgba(0,0,0,0.15);
       font-size:12px;
       color: #999;
     }
   }
-  .pice {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background-color: red;
+  .snake {
+    &.Up .pice .head {
+      transform: rotate(270deg);
+    }
+    &.Down .pice .head {
+      transform: rotate(90deg);
+    }
+
+    &.Left .pice .head {
+      transform: rotate(180deg);
+    }
+
+    &.Right .pice .head {
+      transform: rotate(360deg);
+    }
+    .pice {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      span {
+        display:block;
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        background-color: #4d97d6;
+        background-color: #c97af6;
+        background-color: #ff8326;
+        // animation: snake 5s infinite;
+        &.head {
+          border-radius: 10px;
+          transition: all 0.3s 0.3s;
+          &::before,
+          &::after {
+            position: absolute;
+            right: 5px;
+            width: 3px;
+            height: 3px;
+            border-radius: 100%;
+            background-color: #111;
+            content: '';
+          }
+          &::before {
+            top: 10px;
+          }
+          &::after {
+            bottom: 10px;
+          }
+          i {
+            position: absolute;
+            left: 100%;
+            top: calc(50% - 2px);
+            width: 10px;
+            height: 4px;
+            background: red;
+          }
+        }
+      }
+    }
+
+  }
+}
+
+@keyframes snake {
+  0% {
+    background-color: #ffb984;
+  }
+  20% {
+    background-color: #aa3be8;
+  }
+  40% {
+    background-color: #3b98e8;
+  }
+  100% {
+    background-color: #ffb984;
   }
 }

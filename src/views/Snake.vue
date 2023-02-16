@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 
 let snake = ref<number[][]>([])
-let direction = 'Right'
+let direction = ref<string>('Right')
 const creatSnake  = (): void => {
   for (let i = 0; i < 5; i++) {
     snake.value.push([i + 5, 7])
@@ -13,23 +13,27 @@ creatSnake()
 
 const moveSnake = () => {
   let count = snake.value.length
-  let [lastX, lastY] = snake.value[count - 1]
-  let [firstX, firstY] = snake.value[0]
-  if (lastX === 19 || lastY === 19 || lastX === 0 || lastY === 0) {
+  let head = snake.value[count - 1]
+  let [headX, headY] = head
+  let body = [...snake.value].slice(0, count - 1)
+  console.log(body, head)
+  let aca = body.includes(head)
+  console.log(aca)
+  if (headX === 19 || headY === 19 || headX === 0 || headY === 0) {
     alert('게임종료')
     gameEnd()
     return
-  } 
+  }
 
   snake.value.splice(0, 1)
-    if (direction === 'Left') {
-      snake.value.push([lastX - 1, lastY])
-    } else if (direction === 'Right') {
-      snake.value.push([lastX + 1, lastY])
-    } else if (direction === 'Up') {
-      snake.value.push([lastX, lastY - 1])
+    if (direction.value === 'Left') {
+      snake.value.push([headX - 1, headY])
+    } else if (direction.value === 'Right') {
+      snake.value.push([headX + 1, headY])
+    } else if (direction.value === 'Up') {
+      snake.value.push([headX, headY - 1])
     } else {
-      snake.value.push([lastX, lastY + 1])
+      snake.value.push([headX, headY + 1])
     }
 }
 
@@ -41,9 +45,9 @@ const gameEnd = () => {
   clearInterval(aa)
 }
 
-// setTimeout(() => {
-//   clearInterval(aa)
-// }, 7000)
+setTimeout(() => {
+  clearInterval(aa)
+}, 7000)
 
 const picePosition = ([x ,y]): string => {
   return `left: ${x * 30}px; top: ${y * 30}px`
@@ -54,16 +58,19 @@ const directionCheck = (dir) => {
 }
 
 window.addEventListener('keydown', (e: KeyboardEvent): void => {
-  const beforeDirection = direction
-   
+  const beforeDirection = direction.value
+
   if(e.code.includes('Arrow')) {
     let keyDirection = e.code.split('Arrow')[1]
-    if (directionCheck(direction) !== directionCheck(keyDirection)) {
-      direction = keyDirection
+    if (directionCheck(direction.value) !== directionCheck(keyDirection)) {
+      direction.value = keyDirection
     }
   }
 });
 
+const isHead = (index) => {
+  return index === snake.value.length -1 ? true : false
+}
 
 </script>
 
@@ -73,14 +80,14 @@ window.addEventListener('keydown', (e: KeyboardEvent): void => {
   <div class="gameBox">
 
     <div class="ground">
-      <div class="snake">
+      <div :class="['snake', direction]">
         <template v-for="(pice, index) in snake" :key="`pice-${index}`">
-          <div class="pice" :style="picePosition(pice)"><span></span></div>
+          <div class="pice" :style="picePosition(pice)"><span :class="[{'head' : isHead(index) }]"><i></i></span></div>
         </template>
       </div>
 
       <div class="gridBox">
-        <div class="grid" v-for="(box, index) in 400" :key="`box-${index}`">{{ index }} </div>
+        <div class="grid" v-for="(box, index) in 400" :key="`box-${index}`"></div>
       </div>
     </div>
 
