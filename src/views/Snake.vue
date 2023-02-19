@@ -10,6 +10,7 @@ let direction = ref<string>('Right')
 let snakeLength: number = 0
 let head: number[] = [0,0]
 let bodyText: string[] = []
+let tail: number[] = [0,0]
 
 const creatSnake  = (): void => {
   for (let i = 0; i < 5; i++) {
@@ -23,16 +24,18 @@ let food = ref<number[]>([])
 const getRandomPosition = (): void => {
   let foodX: number = Math.floor(Math.random() * 20)
   let foodY: number = Math.floor(Math.random() * 20)
-  food.value.push(foodX, foodY)
+  food.value = [foodX, foodY]
 }
 const createFood = (): void => {
   getRandomPosition()
 }
 createFood()
-
-interface Head {
-  headX: number
-  headY: number
+const isFood = () => {
+  if (food.value.join(',') === head.join(',')) {
+    console.log('먹었따')
+    snake.value.splice(0,0, [0,0])
+    setTimeout(createFood, 2000)
+  }
 }
 
 const isGameOver = (): boolean => {
@@ -59,10 +62,12 @@ const moveSnake = () => {
 
   snakeLength = snake.value.length
   head = snake.value[snakeLength - 1]
+  tail = snake.value[0]
   bodyText = snake.value.slice(0, snakeLength - 1).map(item => item.join(','))
   let [headX, headY]: number[] = head
 
   if (isGameOver()) {
+    isFood()
 
     snake.value.splice(0, 1)
 
@@ -84,7 +89,7 @@ const moveSnake = () => {
 
 let paly = setInterval(() => {
   moveSnake()
-}, 1000)
+}, 500)
 
 
 
