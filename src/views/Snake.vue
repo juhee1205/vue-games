@@ -6,7 +6,7 @@ let isPlay = ref<boolean>(true)
 let snake = ref<number[][]>([])
 let direction = ref<string>('Right')
 
-
+let CELL = 20
 let snakeLength: number = 0
 let head: number[] = [0,0]
 let bodyText: string[] = []
@@ -14,26 +14,44 @@ let tail: number[] = [0,0]
 
 const creatSnake  = (): void => {
   for (let i = 0; i < 5; i++) {
-    snake.value.push([i + 9, 7])
+    snake.value.push([i + ((CELL / 2) - 7), CELL / 2])
   }
 }
 creatSnake()
 
 let food = ref<number[]>([])
+let showFood = ref<boolean>(false)
 
 const getRandomPosition = (): void => {
-  let foodX: number = Math.floor(Math.random() * 20)
-  let foodY: number = Math.floor(Math.random() * 20)
-  food.value = [foodX, foodY]
+  let foodX: number = Math.floor(Math.random() * CELL)
+  let foodY: number = Math.floor(Math.random() * CELL)
+
+  let snakeX = []
+  let snakeY = []
+
+  snake.value.map(item => {
+    snakeX.push(item[0])
+    snakeY.push(item[0])
+  })
+
+  let aa = snakeX.indexOf(foodX)
+  let bb = snakeX.indexOf(foodY)
+  if (aa === -1 && bb === -1) {
+    showFood.value = true
+    food.value = [foodX, foodY]
+  } else {
+    getRandomPosition()
+  }
 }
 const createFood = (): void => {
   getRandomPosition()
 }
 createFood()
+
 const isFood = () => {
   if (food.value.join(',') === head.join(',')) {
-    console.log('먹었따')
     snake.value.splice(0,0, [0,0])
+    showFood.value = false
     setTimeout(createFood, 2000)
   }
 }
@@ -43,10 +61,10 @@ const isGameOver = (): boolean => {
   let headX = head[0]
   let headY = head[1]
 
-  const right = direction.value === 'Right' && headX >= 19
+  const right = direction.value === 'Right' && headX >= CELL - 1
   const left = direction.value === 'Left' && headX <= 0
   const up = direction.value === 'Up' && headY <= 0
-  const down = direction.value === 'Down' && headY >= 19
+  const down = direction.value === 'Down' && headY >= CELL - 1
   const bodyCross = bodyText.indexOf(headText) !== -1
 
   if (bodyCross || right || left || up || down) {
@@ -89,17 +107,12 @@ const moveSnake = () => {
 
 let paly = setInterval(() => {
   moveSnake()
-}, 500)
-
+}, 300)
 
 
 const gameEnd = () => {
   clearInterval(paly)
 }
-
-// setTimeout(() => {
-//   clearInterval(paly)
-// }, 7000)
 
 const picePosition = ([x ,y]: number[]): string => {
   return `left: ${x * 30}px; top: ${y * 30}px`
@@ -137,11 +150,11 @@ const isHead = (index) => {
           <div class="pice" :style="picePosition(position)"><span :class="[{'head' : isHead(index) }]"><i></i></span></div>
         </template>
       </div>
-      <div class="lemon" :style="picePosition(food)">
+      <div class="food" :style="picePosition(food)" v-if="showFood">
         <font-awesome-icon icon="fa-solid fa-lemon" />
       </div>
-      <div class="gridBox">
-        <div class="grid" v-for="(box, index) in 400" :key="`box-${index}`"></div>
+      <div class="gridBox" :style="`width: ${CELL * 30}px; height: ${CELL * 30}px `">
+        <div class="grid" v-for="(box, index) in CELL*CELL" :key="`box-${index}`"></div>
       </div>
     </div>
 
