@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-
 let isPlay = ref<boolean>(true)
 let snake = ref<number[][]>([])
 let direction = ref<string>('Right')
@@ -26,17 +25,17 @@ const getRandomPosition = (): void => {
   let foodX: number = Math.floor(Math.random() * CELL)
   let foodY: number = Math.floor(Math.random() * CELL)
 
-  let snakeX = []
-  let snakeY = []
+  let snakeX: number[] = []
+  let snakeY: number[] = []
 
   snake.value.map(item => {
     snakeX.push(item[0])
-    snakeY.push(item[0])
+    snakeY.push(item[1])
   })
 
-  let aa = snakeX.indexOf(foodX)
-  let bb = snakeX.indexOf(foodY)
-  if (aa === -1 && bb === -1) {
+  let xCheck = snakeX.indexOf(foodX)
+  let yCheck = snakeX.indexOf(foodY)
+  if (xCheck === -1 && yCheck === -1) {
     showFood.value = true
     food.value = [foodX, foodY]
   } else {
@@ -102,7 +101,6 @@ const moveSnake = () => {
       snake.value.push([headX, headY + 1])
     }
   }
-
 }
 
 let paly = setInterval(() => {
