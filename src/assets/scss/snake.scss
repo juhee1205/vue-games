@@ -1,3 +1,8 @@
+.gameBox {
+  display: flex;
+  justify-content: space-between;
+
+}
 .ground {
   position: relative;
   width: 600px;
@@ -18,7 +23,7 @@
       color: #999;
     }
   }
-  .lemon {
+  .food {
     position: absolute;
     width: 30px;
     height: 30px;
@@ -30,18 +35,18 @@
   }
   .snake {
     &.Up .pice .head {
-      transform: rotate(270deg);
+      transform: rotate(-0.25turn);
     }
     &.Down .pice .head {
-      transform: rotate(90deg);
+      transform: rotate(0.25turn);
     }
 
     &.Left .pice .head {
-      transform: rotate(180deg);
+      transform: rotate(0.5turn);
     }
 
     &.Right .pice .head {
-      transform: rotate(360deg);
+      transform: rotate(0);
     }
     .pice {
       position: absolute;
@@ -55,13 +60,13 @@
         width: 30px;
         height: 30px;
         border-radius: 7px;
-        background: radial-gradient(circle at 25% 25%, #4ee058 20%, transparent 21%, transparent 100%), radial-gradient(circle at 75% 75%, #4ee058 15%, transparent 16%);
+        background: radial-gradient(circle at 27% 30%, #1ed92c 20%, transparent 21%, transparent 100%), radial-gradient(circle at 70% 70%, #129c1b 17%, transparent 16%);
         background-size: 1em 1em;
         background-color: #09b916;
         opacity: 1;
         &.head {
           border-radius: 7px 15px 15px 7px;
-          transition: all 0.3s 0.3s;
+          transition: all 0.3s 0.1s;
           &::before,
           &::after {
             position: absolute;
@@ -85,6 +90,23 @@
             width: 7px;
             height: 5px;
             background: red;
+          }
+          &.die {
+            &::after,
+            &::before {
+              width: 15px;
+              height: 2px;
+            }
+            &::before {
+              top: calc(50% - 1px);
+              transform: rotate(289deg);
+            }
+            &::after {
+              bottom: auto;
+              top: calc(50% - 1px);
+              transform: rotate(64deg);
+            }
+
           }
         }
       }
