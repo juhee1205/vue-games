@@ -11,12 +11,34 @@
     width: 600px;
     height: 600px;
     .grid {
+      position: relative;
       display: flex;
+      align-items: center;
+      justify-content: center;
       background: #f3ffe9;
-      font-size:12px;
+      font-size: 12px;
       color: #999;
       &:nth-child(2n-1) {
         background: #e0f1d1;
+      }
+      i {
+        position: absolute;
+        bottom: 2px;
+        right:2px;
+        color: #444;
+      }
+      .cout {
+        font-size: 30px;
+      }
+      .pin {
+        font-size: 20px;
+        color: #e23333;
+      }
+      &.open {
+        background: #e2cba3;
+      }
+      &:nth-child(2n-1).open {
+        background: #dbc194;
       }
     }
 
