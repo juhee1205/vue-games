@@ -1,51 +1,128 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 interface Ground {
-  value: number
+  mineCount: number
   isMine: boolean
+  isPin: boolean
+  isOpen: boolean
 }
 
-const CELL: number = 9
-const MINE: number = 10
+const CELL = 9
+const MINE = 10
+const CELL_SIZE = ref(`
+  grid-template-columns: repeat(${CELL}, 1fr);
+  grid-template-rows: repeat(${CELL}, 1fr);
+`)
 
 let mineList: number[] = []
 let groundList = ref<Ground[]>([])
 groundList.value = new Array(CELL * CELL).fill({}).map(item => {
-  return {isMine: false, value: 0, isPin: false, isShow: false }
+  return {isMine: false, mineCount: 0, isPin: false, isOpen: false }
 })
+
+const topCheck = (index: number): boolean => Math.floor(index / CELL) !== 0
+const leftCheck = (index: number): boolean => index % CELL !== 0
+const rightCheck = (index: number): boolean => (index + 1) % CELL !== 0
+const bottomCheck = (index: number): boolean => Math.floor(index / CELL) < (CELL - 1)
+const isMine = (index: number): boolean => groundList.value[index].isMine
+
 const cellValueCheck = (): void => {
   groundList.value.map((item, index) => {
 
+    if (item.isMine) return
+
+    // top
+    if (topCheck(index) && isMine(index - CELL)) {
+      item.mineCount ++
+    }
+
+    // top left
+    const TOP_LEFT = CELL + 1
+    if (topCheck(index) && leftCheck(index) && isMine(index - TOP_LEFT)) {
+      item.mineCount ++
+    }
+
+    // top right
+    const TOP_RIGHT = CELL - 1
+    if (topCheck(index) && isMine(index - TOP_RIGHT) && rightCheck(index)) {
+      item.mineCount ++
+    }
+
+    // left
+    if (leftCheck(index) && isMine(index - 1) ) {
+      item.mineCount ++
+    }
+
+    // right
+    if (rightCheck(index) && isMine(index + 1)) {
+      item.mineCount ++
+    }
+
+    // bottom
+    if (bottomCheck(index) && isMine(index + CELL)) {
+      item.mineCount ++
+    }
+
+    // bottom left
+    const BOTTOM_LEFT = CELL - 1
+    if (bottomCheck(index) && leftCheck(index) && isMine(index + BOTTOM_LEFT)) {
+      item.mineCount ++
+    }
+
+    // bottom right
+    const BOTTOM_RIGHT = CELL + 1
+    if (bottomCheck(index) && rightCheck(index) && isMine(index + BOTTOM_RIGHT)) {
+      item.mineCount ++
+    }
+
+    return item
   })
 }
+const groundOpen = (index: number): void => {
 
-const mineFind = (index): void => {
-
+  if (groundList.value[index].isMine) {
+    console.log('지뢰 발견! 게임 종료~')
+  } else {
+    groundList.value[index].isOpen = true
+  }
 }
 
 
-const createMine = (base: number = -1): void => {
-  let index: number = Math.floor(Math.random() * (CELL ** 2))
-  if (base !== -1) {
-    mineList.push(base)
+let isCreateMine = false
+const createMine = (base = -1): void => {
+  let list = new Array(CELL ** 2).fill(0).map((item, index) => index + 1).sort(() => Math.random() - 0.5).splice(0, 11)
+
+  if (list.indexOf(base) === -1) {
+    mineList = list.splice(0, 10)
+  } else {
+    let idx = list.indexOf(base)
+    list.splice(idx, 1)
+    mineList = list
   }
 
-  if (mineList.indexOf(index) === -1) {
-    mineList.push(index)
-    groundList.value[index].isMine = true
-  } else {
-    createMine()
-  }
-
-  if (mineList.length < MINE + 1) {
-    createMine()
-  } else {
-    console.log('지뢰 생성끝~')
-  }
+  console.log('지뢰 생성끝~')
+  mineList.sort((a, b) => a - b)
+  groundList.value.map((item, index) => {
+    if (mineList.indexOf(index) !== -1) {
+      groundList.value[index].isMine = true
+    }
+  })
+  cellValueCheck()
+  groundOpen(base)
 }
 
 const cellClick = (index: number): void => {
-  mineList.length === 0 ? createMine(index) : mineFind(index)
+  if (!isCreateMine) {
+    createMine(index)
+    isCreateMine = true
+  } else {
+    if (groundList.value[index].isPin) return
+    groundOpen(index)
+  }
+}
+const setPin = (index: number): void => {
+  event.preventDefault()
+  groundList.value[index].isPin = true
 }
 
 </script>
@@ -54,19 +131,25 @@ const cellClick = (index: number): void => {
 
   <div class="gameBox">
     <div class="ground">
-      <div class="gridBox" :style="`grid-template-columns: repeat(${CELL}, 1fr);`">
-        <div class="grid"
+      <div class="gridBox" :style="CELL_SIZE">
+        <div
+          :class="['grid', {'open': cell.isOpen}]"
           :key="`box-${index}`"
-          @click="cellClick(index)"
+          @click.left="cellClick(index)"
+          @click.right="setPin(index)"
           v-for="(cell, index) in groundList" >
-          {{ index }}
-          <span v-if="cell.isMine">💣</span>
+          <i>{{ index }}</i>
+
+          <span class="cout" v-if="cell.mineCount > 0">{{ cell.mineCount }}</span>
+
+          <span v-if="cell.isMine && !cell.isPin">💣</span>
+          <span class="pin" v-if="cell.isPin"><font-awesome-icon icon="fa-solid fa-map-pin" /></span>
         </div>
       </div>
     </div>
 
     <div class="scoreZone">
-      <h2>지뢰 갯수 {{ CELL }}</h2>
+      <h2>지뢰 갯수 {{ MINE }}</h2>
     </div>
 
   </div>
