@@ -20,6 +20,142 @@ groundList.value = new Array(CELL * CELL).fill({}).map(item => {
   return {isMine: false, mineCount: 0, isPin: false, isOpen: false }
 })
 
+const mineCountCheck = (index: number): boolean => {
+  return groundList.value[index].mineCount !== 0 && groundList.value[index - 1].mineCount !== 0 && groundList.value[index + 1].mineCount !== 0
+}
+
+const mineCheck = (index: number): boolean => {
+  return groundList.value[index - 1].mineCount !== 0 && groundList.value[index + 1].isMine || groundList.value[index + 1].mineCount !== 0 && groundList.value[index - 1].isMine
+}
+
+const topOpen = (index): void => {
+  if (index < 0) return
+  let idx = index
+  let x = idx % CELL
+  let y = Math.floor(idx / CELL)
+  let empty = !groundList.value[idx].mineCount
+
+  while (y >= 0) {
+    empty = !groundList.value[idx].mineCount
+
+    if (x !== 0 && x !== CELL - 1 ) {
+      if (groundList.value[idx].isMine) break
+
+      // idx와 idx의 좌우에 숫자가 있으면 break
+      if (mineCountCheck(idx) || mineCheck(idx) && !empty) {
+        groundList.value[idx].isOpen = true
+        break
+      }
+
+      groundList.value[idx].isOpen = true
+    }
+    idx -= CELL
+    y--
+  }
+}
+
+const bottomOpen = (index): number => {
+  if (index > CELL ** 2) return
+  let idx = index
+  let x = idx % CELL
+  let y = Math.floor(idx / CELL)
+  let empty = !groundList.value[idx - CELL].mineCount
+
+  while (y < CELL) {
+    empty = !groundList.value[idx - CELL].mineCount
+    console.log(idx, empty)
+
+    // 지뢰가 있으면 break
+    if (groundList.value[idx].isMine) break
+
+    // 좌우 있을때
+    if (x !== 0 && x !== CELL - 1 ) {
+
+      // 지뢰가 있으면 break
+      if (groundList.value[idx].isMine) break
+
+
+      // idx와 idx의 좌우에 숫자가 있으면 break
+      if (mineCountCheck(idx) || mineCheck(idx)) {
+        if (empty) {
+          groundList.value[idx].isOpen = true
+        }
+        console.log(idx, 'break')
+        break
+      }
+      groundList.value[idx].isOpen = true
+
+    // x = 0, x = CELL 일때
+    } else {
+      if (!empty) {
+        groundList.value[idx].isOpen = true
+        break
+      }
+      groundList.value[idx].isOpen = true
+
+    }
+    idx += CELL
+    y++
+  }
+}
+
+const topOpen2 = (index) => {
+  let idx = index - CELL
+
+  if (idx < 0) return
+  if (groundList.value[idx].isMine) return
+
+  if (groundList.value[idx].mineCount === 0) {
+    groundList.value[idx].isOpen = true
+
+  } else if (groundList.value[idx + CELL].mineCount === 0 ) {
+    groundList.value[idx].isOpen = true
+  } else if (mineCountCheck(idx)) {
+    // 전 칸이 0이면서 숫자 세개가 나란히 있으면 열기
+    if (groundList.value[idx + CELL].mineCount === 0 ) {
+      groundList.value[idx].isOpen = true
+    }
+
+  } else {
+    return
+  }
+
+  topOpen2(idx)
+}
+
+const bottomOpen2 = (index) => {
+  let idx = index + CELL
+
+  if (idx > CELL ** 2) return
+  if (groundList.value[idx].isMine) return
+
+  if (groundList.value[idx].mineCount === 0) {
+    groundList.value[idx].isOpen = true
+
+  } else if (groundList.value[idx - CELL].mineCount === 0) {
+    groundList.value[idx].isOpen = true
+
+  } else {
+    return
+  }
+
+  bottomOpen2(idx)
+}
+
+const groundOpen = (index: number): void => {
+  if (groundList.value[index].isMine) {
+    console.log('지뢰 클릭! 게임 종료~')
+
+  } else {
+    console.log('click--->', index)
+    groundList.value[index].isOpen = true
+    // topOpen(index - CELL)
+    // bottomOpen(index + CELL)
+    topOpen2(index)
+    bottomOpen2(index)
+  }
+}
+
 const topCheck = (index: number): boolean => Math.floor(index / CELL) !== 0
 const leftCheck = (index: number): boolean => index % CELL !== 0
 const rightCheck = (index: number): boolean => (index + 1) % CELL !== 0
@@ -37,14 +173,12 @@ const cellValueCheck = (): void => {
     }
 
     // top left
-    const TOP_LEFT = CELL + 1
-    if (topCheck(index) && leftCheck(index) && isMine(index - TOP_LEFT)) {
+    if (topCheck(index) && leftCheck(index) && isMine(index - CELL - 1)) {
       item.mineCount ++
     }
 
     // top right
-    const TOP_RIGHT = CELL - 1
-    if (topCheck(index) && isMine(index - TOP_RIGHT) && rightCheck(index)) {
+    if (topCheck(index) && rightCheck(index) && isMine(index - CELL + 1)) {
       item.mineCount ++
     }
 
@@ -64,44 +198,54 @@ const cellValueCheck = (): void => {
     }
 
     // bottom left
-    const BOTTOM_LEFT = CELL - 1
-    if (bottomCheck(index) && leftCheck(index) && isMine(index + BOTTOM_LEFT)) {
+    if (bottomCheck(index) && leftCheck(index) && isMine(index + CELL - 1)) {
       item.mineCount ++
     }
 
     // bottom right
-    const BOTTOM_RIGHT = CELL + 1
-    if (bottomCheck(index) && rightCheck(index) && isMine(index + BOTTOM_RIGHT)) {
+    if (bottomCheck(index) && rightCheck(index) && isMine(index + CELL + 1)) {
       item.mineCount ++
     }
 
+    openArray[Math.floor(index / CELL)][index % CELL] = item.mineCount
     return item
   })
-}
-const groundOpen = (index: number): void => {
 
-  if (groundList.value[index].isMine) {
-    console.log('지뢰 발견! 게임 종료~')
-  } else {
-    groundList.value[index].isOpen = true
+}
+
+let openArray = []
+const groundInit = (): void => {
+  let i = 0
+  while (i < CELL) {
+    let list = new Array(CELL).fill(0)
+    openArray.push([...list])
+    i++
   }
 }
 
 
-let isCreateMine = false
+
+// 지뢰 생성시 클릭된 영역을 중심으로 3*3은 지뢰 생성 X
+let isCreateMine: boolean = false
 const createMine = (base = -1): void => {
-  let list = new Array(CELL ** 2).fill(0).map((item, index) => index + 1).sort(() => Math.random() - 0.5).splice(0, 11)
+  let list: number[]  =
+    new Array(CELL ** 2)
+      .fill(0)
+      .map((item, index) => index + 1)
+      .filter(item =>
+        (item < base - (CELL + 1)) ||
+        (base - (CELL - 1) < item) && (item < base - 1) ||
+        (base + 1 < item) && (item < base + (CELL - 1)) ||
+        (base + (CELL + 1) < item)
+      )
+      .sort(() => Math.random() - 0.5)
+      .splice(0, 10)
 
-  if (list.indexOf(base) === -1) {
-    mineList = list.splice(0, 10)
-  } else {
-    let idx = list.indexOf(base)
-    list.splice(idx, 1)
-    mineList = list
-  }
+  mineList = list
 
   console.log('지뢰 생성끝~')
   mineList.sort((a, b) => a - b)
+
   groundList.value.map((item, index) => {
     if (mineList.indexOf(index) !== -1) {
       groundList.value[index].isMine = true
@@ -113,8 +257,10 @@ const createMine = (base = -1): void => {
 
 const cellClick = (index: number): void => {
   if (!isCreateMine) {
+    groundInit()
     createMine(index)
     isCreateMine = true
+
   } else {
     if (groundList.value[index].isPin) return
     groundOpen(index)
@@ -122,7 +268,7 @@ const cellClick = (index: number): void => {
 }
 const setPin = (index: number): void => {
   event.preventDefault()
-  groundList.value[index].isPin = true
+  groundList.value[index].isPin = !groundList.value[index].isPin
 }
 
 </script>
