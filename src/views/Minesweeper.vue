@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 interface Ground {
-  mineCount: number
   isMine: boolean
+  mineCount: number
   isPin: boolean
   isOpen: boolean
-  isRepeat: boolean
+  isSafe: boolean
 }
 
 interface Select {
@@ -17,42 +17,62 @@ interface Select {
 }
 
 let level = ref<number>(0)
-let cellX = 0
-let cellY = 0
-let totalCell = 0
-const select = [
+let cellX: number = 0
+let cellY: number = 0
+let totalCell: number = 0
+const select: Select[] = [
   { value:0, text: '하', cellX: 9, cellY: 9, mine: 10 },
   { value:1, text: '중', cellX: 16, cellY: 16, mine: 40 },
   { value:2, text: '상', cellX: 30, cellY: 16, mine: 99 },
 ]
 
-let mines = ref(0)
+let mines = ref(-1)
 let cellStyle = ref(`
   grid-template-columns: repeat(${select[level.value].cellX}, 1fr);
   grid-template-rows: repeat(${select[level.value].cellY}, 1fr);
 `)
 
-let board = ref([])
-const init = () => {
+watchEffect(() => {
+  if (mines.value === 0) {
+    console.log('지뢰 검증~')
+  }
+})
+
+let firstIndex: number = 0
+let firstCoord: number[] = []
+let firstAround: number[] = []
+
+let mineList: number[] = []
+let pinList: number[] =  []
+
+
+let board = ref<Ground[][]>([])
+const init = (): void => {
+  firstIndex = 0
+  firstCoord = []
+  firstAround = []
+  mineList = []
+  pinList = []
+
   cellY = select[level.value].cellY
   cellX = select[level.value].cellX
   totalCell = cellY * cellX
 
+
   board.value =
     new Array(cellY)
     .fill([])
-    .map((itemY, indexY) => {
-      let arr = new Array(cellX).fill(0).map((itemX, indexX) => {
-        return itemX = {
-            index: (indexY * cellX) + indexX,
+    .map(itemY => {
+      let arr = new Array(cellX).fill(0).map(itemX => {
+        return {
             isMine: false,
             mineCount: 0,
             isPin: false,
             isOpen: false,
-            isRepeat: false
+            isSafe: false
           }
       })
-      return itemY = arr
+      return arr
     })
 
   mines.value = select[level.value].mine
@@ -62,152 +82,257 @@ const init = () => {
 }
 init()
 
-let firstIndex = 0
-let firstCoord = []
-let firstAround = []
 
-
-let mineList = ref([])
-
-const calcX = (idx) => idx % cellX
-const calcY = (idx) => Math.floor(idx / cellX)
-
-const topLeftCheck = (idx) => {
-  return calcY(idx) - 1 >= 0 && calcX(idx) - 1 >= 0 ? true : false
+const topLeftCheck = (y: number, x: number): boolean => {
+  return y - 1 >= 0 && x - 1 >= 0 ? true : false
 }
-const topCheck = (idx) => {
-  return calcY(idx) - 1 >= 0 ? true : false
+const topCheck = (y: number, x: number): boolean => {
+  return y - 1 >= 0 ? true : false
 }
-const topRightCheck = (idx) => {
-  return calcY(idx) - 1 >= 0 && calcX(idx) + 1 < cellX ? true : false
+const topRightCheck = (y: number, x: number): boolean => {
+  return y - 1 >= 0 && x + 1 < cellX ? true : false
 }
-const leftCheck = (idx) => {
-  return calcX(idx) - 1 >= 0 ? true : false
+const leftCheck = (y: number, x: number): boolean => {
+  return x - 1 >= 0 ? true : false
 }
-const rightCheck = (idx) => {
-  return calcX(idx) + 1 < cellX ? true : false
+const rightCheck = (y: number, x: number): boolean => {
+  return x + 1 < cellX ? true : false
 }
-const bottomLeftCheck = (idx) => {
-  return calcY(idx) + 1 < cellY && calcX(idx) - 1 >= 0 ? true : false
+const bottomLeftCheck = (y: number, x: number): boolean => {
+  return y + 1 < cellY && x - 1 >= 0 ? true : false
 }
-const bottomCheck = (idx) => {
-  return calcY(idx) + 1 < cellY ? true : false
+const bottomCheck = (y: number, x: number): boolean => {
+  return y + 1 < cellY ? true : false
 }
-const bottomRightCheck = (idx) => {
-  return calcY(idx) + 1 < cellY && calcX(idx) + 1 < cellX ? true : false
+const bottomRightCheck = (y: number, x: number): boolean => {
+  return y + 1 < cellY && x + 1 < cellX ? true : false
 }
 
-const setMinCount = () => {
-  mineList.value.sort((a, b) => a - b).forEach(index => {
-    let x = calcX(index)
-    let y = calcY(index)
+const setMinCount = (): void => {
+  mineList.sort((a, b) => a - b).forEach(index => {
+    const x: number = index % cellX
+    const y: number = Math.floor(index / cellX)
 
-
-    if (topLeftCheck(index)) {
+    if (topLeftCheck(y, x)) {
       board.value[y - 1][x - 1].mineCount ++
     }
 
-    if (topCheck(index)) {
+    if (topCheck(y, x)) {
       board.value[y - 1][x].mineCount ++
     }
 
-    if (topRightCheck(index)) {
+    if (topRightCheck(y, x)) {
       board.value[y - 1][x + 1].mineCount ++
     }
 
-    if (leftCheck(index)) {
+    if (leftCheck(y, x)) {
       board.value[y][x - 1].mineCount ++
     }
 
-    if (rightCheck(index)) {
+    if (rightCheck(y, x)) {
       board.value[y][x + 1].mineCount ++
     }
 
-    if (bottomLeftCheck(index)) {
+    if (bottomLeftCheck(y, x)) {
       board.value[y + 1][x - 1].mineCount ++
     }
 
-    if (bottomCheck(index)) {
+    if (bottomCheck(y, x)) {
       board.value[y + 1][x].mineCount ++
     }
 
-    if (bottomRightCheck(index)) {
+    if (bottomRightCheck(y, x)) {
       board.value[y + 1][x + 1].mineCount ++
     }
 
-
   })
+
 }
 
-const setMine = () => {
-  mineList.value.sort((a, b) => a - b).map(item => {
+const setMine = (): void => {
+  mineList.sort((a, b) => a - b).map(item => {
     let x = item % cellX
     let y = Math.floor(item / cellX)
     board.value[y][x].isMine = true
   })
 
-  console.log(mineList.value)
   setMinCount()
+  isOpen(firstCoord[0], firstCoord[1])
 }
 
-const setRondomMine = () => {
-  if (mineList.value.length >= mines.value) {
+const setRondomMine = (): void => {
+  if (mineList.length >= select[level.value].mine) {
     setMine()
     return
   }
 
-
   let newMine = Math.floor(Math.random() * totalCell)
 
-  if (mineList.value.indexOf(newMine) === -1 && firstAround.indexOf(newMine) === -1) {
-    mineList.value.push(newMine)
+  if (mineList.indexOf(newMine) === -1 && firstAround.indexOf(newMine) === -1) {
+    mineList.push(newMine)
   }
 
   setRondomMine()
+}
+
+const isNearMine = (y: number, x: number): void => {
+  if (board.value[y][x].isSafe) {
+    return
+  }
+
+  let safeList: number[][] = []
+  board.value[y][x].isOpen = true
+  board.value[y][x].isSafe = true
+
+  // 핀이 꼽힌 셀이 오픈될때 처리
+  if (board.value[y][x].isPin) {
+    board.value[y][x].isPin = false
+    mines.value++
+    removePin(y, x)
+  }
+
+  if (topLeftCheck(y, x)) {
+    safeList.push(
+      !board.value[y - 1][x - 1].isMine ? [y - 1, x -1] : [-1, -1]
+    )
+  }
+
+  if (topCheck(y, x)) {
+    safeList.push(
+      !board.value[y - 1][x].isMine ? [y - 1, x] : [-1, -1]
+    )
+  }
+
+  if (topRightCheck(y, x)) {
+    safeList.push(
+      !board.value[y - 1][x + 1].isMine ? [y - 1, x] : [-1, -1]
+    )
+  }
+
+  if (leftCheck(y, x)) {
+    safeList.push(
+      !board.value[y][x - 1].isMine ? [y, x - 1] : [-1, -1]
+    )
+  }
+
+  if (rightCheck(y, x)) {
+    safeList.push(
+      !board.value[y][x + 1].isMine ? [y, x + 1] : [-1, -1]
+    )
+  }
+
+  if (bottomLeftCheck(y, x)) {
+    safeList.push(
+      !board.value[y + 1][x - 1].isMine ? [y + 1, x - 1] : [-1, -1]
+    )
+  }
+
+  if (bottomCheck(y, x)) {
+    safeList.push(
+      !board.value[y + 1][x].isMine ? [y + 1, x] : [-1, -1]
+    )
+  }
+
+  if (bottomRightCheck(y, x)) {
+    safeList.push(
+      !board.value[y + 1][x + 1].isMine ? [y + 1, x + 1] : [-1, -1]
+    )
+  }
+
+  if([...safeList].join('').includes('-1')) {
+    return
+  }
+
+  safeList.forEach(cell => isNearMine(cell[0], cell[1]))
 
 }
 
-const groundOpen = () => {
+const isOpen = (y: number, x: number): void => {
+  if (board.value[y][x].isMine) {
+    console.log('게임 종료')
+  } else {
+    console.log('click ---- > ', y, x)
+    isNearMine(y, x)
+  }
 
 }
 
-const gameStart = () => {
+const gameStart = (): void => {
   init()
 }
 
-const setPin = () => {
+const removePin = (y: number, x: number): void => {
+  let idx = pinList.indexOf(y * cellY + x)
+  pinList.splice(idx,1)
+}
 
+const setPin = (y: number, x: number): void => {
+  let pinIdx = y * cellY + x
+
+  if (board.value[y][x].isPin) {
+    board.value[y][x].isPin = false
+    removePin(y, x)
+  } else {
+
+    pinList.push(pinIdx)
+    board.value[y][x].isPin = true
+    mines.value--
+  }
 }
 
 
 let mouseLeft = false
 let mouseRight = false
 
-const cellClick = (event, coord) => {
-  // event.preventDefault()
-  // console.log(event)
+const cellMouseDown = (event: any): void => {
+  event.preventDefault()
 
-  firstIndex = (coord[0]) * cellY + coord[1]
-  firstCoord = coord
-  firstAround = new Array(9).fill().map((item, index) => {
-    let x = (index % 3) - 1
-    let y = (Math.floor(index / 3)) - 1
-    return firstIndex + (cellX * y) + x
-  })
-
-  if (mineList.value.length === 0) {
-    setRondomMine()
-  } else {
-    groundOpen()
+  if (event.which === 1 || event.button === 0) {
+    mouseLeft = true
   }
 
+  if (event.which === 3 || event.button === 2) {
+    mouseRight = true
+  }
 }
 
-const cellClick2 = (event) => {
-  // event.preventDefault()
+const cellMouseUp = (event: any, coord: number[]): void => {
+  event.preventDefault()
+
+  let [y, x] = coord
+
+  if (mouseLeft && mouseRight) {
+    console.log('힌트')
+
+    mouseLeft = false
+    mouseRight = false
+    return
+
+  } else if (mouseLeft) {
+    if (mineList.length === 0) {
+      firstIndex = (coord[0]) * cellY + coord[1]
+      firstCoord = coord
+      firstAround = new Array(9).fill(0).map((item, index) => {
+        let x = (index % 3) - 1
+        let y = (Math.floor(index / 3)) - 1
+        return firstIndex + (cellX * y) + x
+      })
+      setRondomMine()
+
+    } else {
+      isOpen(y, x)
+    }
+
+  } else {
+    if (!board.value[y][x].isOpen) {
+      setPin(y, x)
+    }
+  }
+
   mouseLeft = false
   mouseRight = false
 }
+
 
 </script>
 <template>
@@ -238,19 +363,20 @@ const cellClick2 = (event) => {
           <template v-for="(cell, indexX) in cellY" :key="`box-${indexX}`">
 
             <div
-              :class="['grid', `level-${level}`]"
-              @mousedown.prevent="cellClick($event, [indexY, indexX])"
-              @mouseup.prevent="cellClick2($event)"
+              :class="['grid', `level-${level}`, {'open': cell.isOpen}]"
+              @mousedown.prevent="cellMouseDown($event)"
+              @mouseup.prevent="cellMouseUp($event, [indexY, indexX])"
               >
-                <i>{{cell.index}} [{{ indexY }}, {{ indexX }}]</i>
+                <!-- <i>{{cell.index}} [{{ indexY }}, {{ indexX }}]</i> -->
 
                 <span
                   :class="['count', `count-${cell.mineCount}`]"
-                  v-if="cell.mineCount > 0 && !cell.isMine">
+                  v-if="cell.mineCount > 0 && !cell.isMine && cell.isOpen">
                   {{ cell.mineCount }}
                 </span>
 
-                <span v-if="cell.isMine && !cell.isPin">💣</span>
+                <!-- <span v-if="cell.isMine && !cell.isPin">💣</span> -->
+                <span class="pin" v-if="cell.isPin">🚩</span>
             </div>
 
           </template>
