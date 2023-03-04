@@ -41,12 +41,23 @@ watchEffect(() => {
 let firstIndex: number = 0
 let firstCoord: number[] = []
 let firstAround: number[] = []
+let time = ref<number>(0)
 
 let mineList: number[] = []
 let pinList: number[] =  []
 
 
 let board = ref<Ground[][]>([])
+
+let interval: any = null
+const timeStart = (): void => {
+  console.log('time')
+  interval = setInterval(() => {
+    console.log('a')
+    time.value += 1
+  }, 1000)
+}
+
 const init = (): void => {
   firstIndex = 0
   firstCoord = []
@@ -74,7 +85,6 @@ const init = (): void => {
       })
       return arr
     })
-
   mines.value = select[level.value].mine
   cellStyle.value =
     `grid-template-columns: repeat(${cellX}, 1fr);
@@ -247,6 +257,10 @@ const isNearMine = (y: number, x: number): void => {
 
 }
 
+const gameAnd = () => {
+  
+}
+
 const isOpen = (y: number, x: number): void => {
   if (board.value[y][x].isMine) {
     console.log('게임 종료')
@@ -256,6 +270,7 @@ const isOpen = (y: number, x: number): void => {
   }
 
 }
+
 
 const gameStart = (): void => {
   init()
@@ -298,6 +313,7 @@ const cellMouseDown = (event: any): void => {
 
 const cellMouseUp = (event: any, coord: number[]): void => {
   event.preventDefault()
+  console.log(event)
 
   let [y, x] = coord
 
@@ -318,6 +334,8 @@ const cellMouseUp = (event: any, coord: number[]): void => {
         return firstIndex + (cellX * y) + x
       })
       setRondomMine()
+      time.value = 0
+      timeStart()
 
     } else {
       isOpen(y, x)
@@ -353,7 +371,7 @@ const cellMouseUp = (event: any, coord: number[]): void => {
       </div>
       <h2>💣 {{ mines }}</h2>
       <h2 class="time">
-      ⏱ 000
+      ⏱ {{ time }}
       </h2>
     </div>
 
@@ -365,7 +383,7 @@ const cellMouseUp = (event: any, coord: number[]): void => {
             <div
               :class="['grid', `level-${level}`, {'open': cell.isOpen}]"
               @mousedown.prevent="cellMouseDown($event)"
-              @mouseup.prevent="cellMouseUp($event, [indexY, indexX])"
+              @mouseup.stop.prevent="cellMouseUp($event, [indexY, indexX])"
               >
                 <!-- <i>{{cell.index}} [{{ indexY }}, {{ indexX }}]</i> -->
 
