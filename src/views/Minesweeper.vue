@@ -16,6 +16,8 @@ interface Select {
   mine: number
 }
 
+let isPlay = ref<boolean>(false)
+let isGameEnd = ref<boolean>(false)
 let level = ref<number>(0)
 let cellX: number = 0
 let cellY: number = 0
@@ -32,30 +34,79 @@ let cellStyle = ref(`
   grid-template-rows: repeat(${select[level.value].cellY}, 1fr);
 `)
 
+const getCoord = (index: number): number[] => {
+  return [Math.floor(index / cellX) , index % cellX]
+}
+
 watchEffect(() => {
   if (mines.value === 0) {
     console.log('지뢰 검증~')
+    gameAnd()
   }
 })
 
 let firstIndex: number = 0
 let firstCoord: number[] = []
 let firstAround: number[] = []
-let time = ref<number>(0)
+let time = ref<string>('000')
 
 let mineList: number[] = []
 let pinList: number[] =  []
-
-
 let board = ref<Ground[][]>([])
 
-let interval: any = null
-const timeStart = (): void => {
-  console.log('time')
+const showReStar = () => {
+  setTimeout(() => {
+    isGameEnd.value = true
+  }, 2000)
+}
+
+const minesOpen = () => {
+  mineList.forEach(index => {
+    let [y, x] = getCoord(index)
+    board.value[y][x].isOpen = true
+  })
+  showReStar()
+}
+
+const isClear = () => {
+  let aa = []
+  mineList.forEach(index => {
+    let [y, x] = getCoord(index)
+    aa.push(board.value[y][x].isPin ? true : false)
+  })
+
+  console.log(aa)
+  if (aa.indexOf(false) === -1) {
+    console.log('clear!')
+    showReStar()
+  } else {
+    minesOpen()
+  }
+
+}
+
+
+let interval = null
+const timeStart = () => {
+  isPlay.value = true
+
+  let timeNum: number = 0
   interval = setInterval(() => {
-    console.log('a')
-    time.value += 1
+    timeNum++
+    time.value = timeNum.toString().padStart(3,0)
   }, 1000)
+}
+
+const gameAnd = (): void => {
+  clearInterval(interval)
+  isPlay.value = false
+
+  if (mines.value !== 0 ) {
+    minesOpen()
+  } else {
+    isClear()
+  }
+
 }
 
 const init = (): void => {
@@ -68,7 +119,6 @@ const init = (): void => {
   cellY = select[level.value].cellY
   cellX = select[level.value].cellX
   totalCell = cellY * cellX
-
 
   board.value =
     new Array(cellY)
@@ -120,8 +170,7 @@ const bottomRightCheck = (y: number, x: number): boolean => {
 
 const setMinCount = (): void => {
   mineList.sort((a, b) => a - b).forEach(index => {
-    const x: number = index % cellX
-    const y: number = Math.floor(index / cellX)
+    let [y, x] = getCoord(index)
 
     if (topLeftCheck(y, x)) {
       board.value[y - 1][x - 1].mineCount ++
@@ -257,13 +306,10 @@ const isNearMine = (y: number, x: number): void => {
 
 }
 
-const gameAnd = () => {
-  
-}
-
 const isOpen = (y: number, x: number): void => {
   if (board.value[y][x].isMine) {
     console.log('게임 종료')
+    gameAnd()
   } else {
     console.log('click ---- > ', y, x)
     isNearMine(y, x)
@@ -273,6 +319,7 @@ const isOpen = (y: number, x: number): void => {
 
 
 const gameStart = (): void => {
+  isGameEnd.value = false
   init()
 }
 
@@ -334,7 +381,7 @@ const cellMouseUp = (event: any, coord: number[]): void => {
         return firstIndex + (cellX * y) + x
       })
       setRondomMine()
-      time.value = 0
+      time.value = '000'
       timeStart()
 
     } else {
@@ -376,6 +423,13 @@ const cellMouseUp = (event: any, coord: number[]): void => {
     </div>
 
     <div class="ground">
+      <div class="reStart" v-if="isGameEnd">
+        <div class="btn" @click="gameStart()">
+          <font-awesome-icon icon="fa-solid fa-rotate-right" />
+          재시작
+        </div>
+      </div>
+
       <div class="gridBox" :style="cellStyle" >
         <template v-for="(cellY, indexY) in board">
           <template v-for="(cell, indexX) in cellY" :key="`box-${indexX}`">
@@ -385,15 +439,17 @@ const cellMouseUp = (event: any, coord: number[]): void => {
               @mousedown.prevent="cellMouseDown($event)"
               @mouseup.stop.prevent="cellMouseUp($event, [indexY, indexX])"
               >
-                <!-- <i>{{cell.index}} [{{ indexY }}, {{ indexX }}]</i> -->
-
                 <span
                   :class="['count', `count-${cell.mineCount}`]"
                   v-if="cell.mineCount > 0 && !cell.isMine && cell.isOpen">
                   {{ cell.mineCount }}
                 </span>
 
-                <!-- <span v-if="cell.isMine && !cell.isPin">💣</span> -->
+                <span
+                  :class="['mine', {'mineOpen': cell.isOpen}]"
+                  v-if="cell.isMine && !cell.isPin">
+                  💣
+                </span>
                 <span class="pin" v-if="cell.isPin">🚩</span>
             </div>
 
