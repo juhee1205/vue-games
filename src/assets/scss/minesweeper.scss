@@ -57,9 +57,30 @@
         box-shadow: none;
         z-index: 1;
       }
+      .mine {
+        opacity: 0;
+        font-size: 0;
+        transition: all 0.3s;
+        &.mineOpen {
+          opacity: 1;
+          font-size: 30px;
+          animation: shake 0.2s 0.3s;
+
+        }
+      }
     }
 
   }
+}
+
+@keyframes shake {
+  0% {transform: translateX(0px);}
+  10% {transform: translateX(3px);}
+  30% {transform: translateX(-3px);}
+  50% {transform: translateX(3px);}
+  70% {transform: translateX(-3px);}
+  90% {transform: translateX(3px);}
+  100% {transform: translateX(0px);}
 }
 
 .scoreZone {
